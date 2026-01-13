@@ -16,6 +16,9 @@ export default function AcademyPage() {
     investmentReady: '',
     bestCallTime: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
@@ -26,13 +29,56 @@ export default function AcademyPage() {
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear errors when user starts typing
+    if (submitError) setSubmitError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-    alert('Application submitted! We will contact you shortly.');
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
+
+    try {
+      const response = await fetch('/api/submit-application', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit application');
+      }
+
+      // Success - show success message and reset form
+      setSubmitSuccess(true);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        annualRevenue: '',
+        industry: '',
+        biggestChallenge: '',
+        whyJoin: '',
+        investmentReady: '',
+        bestCallTime: ''
+      });
+
+      // Show success alert
+      alert('Application submitted! We will contact you shortly.');
+
+      // Scroll to top of form
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitError(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const modules = [
@@ -796,11 +842,25 @@ export default function AcademyPage() {
                 </select>
               </div>
 
+              {submitError && (
+                <div className="bg-red-50 border-2 border-red-500 rounded-lg p-4">
+                  <p className="text-red-700 font-semibold">Error: {submitError}</p>
+                  <p className="text-red-600 text-sm mt-1">Please try again or contact us directly if the problem persists.</p>
+                </div>
+              )}
+
+              {submitSuccess && (
+                <div className="bg-green-50 border-2 border-green-500 rounded-lg p-4">
+                  <p className="text-green-700 font-semibold">✓ Application submitted successfully!</p>
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="w-full bg-black hover:bg-gray-800 text-white font-bold text-xl px-8 py-5 rounded-lg transition-all duration-200 transform hover:scale-105"
+                disabled={isSubmitting}
+                className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-bold text-xl px-8 py-5 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none"
               >
-                Submit Application
+                {isSubmitting ? 'Submitting Application...' : 'Submit Application'}
               </button>
 
               <p className="text-sm text-gray-600 text-center">
