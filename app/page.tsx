@@ -11,7 +11,7 @@ export default function Home() {
             {/* Photo - Left on desktop, top on mobile */}
             <div className="flex justify-center md:justify-start">
               <Image
-                src="/D3A033DA-8AD5-48D9-9E6C-E85EBC568441.JPG"
+                src="/profile-photo.jpg"
                 width={450}
                 height={450}
                 alt="Naeem Mahmood - Peak Performance Coach"
