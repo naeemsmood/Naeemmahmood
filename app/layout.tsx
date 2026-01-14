@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "./components/Navigation";
+import Image from "next/image";
+import logo from "@/public/logo.jpg";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,6 +31,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Image src="/logo.jpg" alt="Naeem Mahmood Logo" width={150} height={50} />
+
         <Navigation />
         <main className="pt-16">
           {children}
